@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -68,18 +69,18 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
         onClick={handleCardClick}
       >
         {/* Front of card */}
-        <Card className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <Card className="absolute inset-0 w-full h-full backface-hidden rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-gray-50">
           <div className="relative h-full">
             <img
               src={entry.image}
               alt={entry.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             
             {/* Admin buttons */}
             {isAdminMode && (
-              <div className="absolute top-2 right-2 flex gap-2">
+              <div className="absolute top-3 right-3 flex gap-2">
                 <Button
                   size="sm"
                   variant="secondary"
@@ -87,7 +88,7 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
                     e.stopPropagation();
                     onEdit?.(entry);
                   }}
-                  className="bg-white/90 hover:bg-white"
+                  className="bg-white/95 hover:bg-white backdrop-blur-sm shadow-lg border-0"
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
@@ -98,28 +99,30 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
                     e.stopPropagation();
                     onDelete?.(entry);
                   }}
-                  className="bg-red-500/90 hover:bg-red-600"
+                  className="bg-red-500/95 hover:bg-red-600 backdrop-blur-sm shadow-lg border-0"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             )}
             
-            <div className="absolute bottom-4 left-4 right-4">
-              <h3 className="text-white text-xl font-semibold mb-2">{entry.name}</h3>
-              <div className="flex items-center gap-2">
-                {entry.isHomemade ? (
-                  <Badge className="bg-green-500 hover:bg-green-600">
-                    <Home className="w-3 h-3 mr-1" />
-                    {t('homemade')}
-                  </Badge>
-                ) : (
-                  <Badge className="bg-blue-500 hover:bg-blue-600">
-                    <ShoppingCart className="w-3 h-3 mr-1" />
-                    {t('purchased')}
-                  </Badge>
-                )}
-                <div className="flex items-center">
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent">
+              <h3 className="text-white text-xl font-bold mb-3 drop-shadow-lg">{entry.name}</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {entry.isHomemade ? (
+                    <Badge className="bg-emerald-500/90 hover:bg-emerald-600 backdrop-blur-sm border-0 shadow-lg">
+                      <Home className="w-3 h-3 mr-1" />
+                      {t('homemade')}
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-blue-500/90 hover:bg-blue-600 backdrop-blur-sm border-0 shadow-lg">
+                      <ShoppingCart className="w-3 h-3 mr-1" />
+                      {t('purchased')}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
                   {renderStars(entry.rating)}
                 </div>
               </div>
@@ -128,55 +131,55 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
         </Card>
 
         {/* Back of card */}
-        <Card className="absolute inset-0 w-full h-full backface-hidden rounded-xl rotate-y-180 shadow-lg bg-white">
+        <Card className="absolute inset-0 w-full h-full backface-hidden rounded-2xl rotate-y-180 shadow-2xl bg-gradient-to-br from-white via-gray-50 to-orange-50 border-0">
           <CardContent className="p-6 h-full flex flex-col justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">{entry.name}</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-orange-200">{entry.name}</h3>
               
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">{t('type')}</span>
+              <div className="space-y-5">
+                <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl backdrop-blur-sm">
+                  <span className="text-sm font-semibold text-gray-600">{t('type')}</span>
                   {entry.isHomemade ? (
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                    <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-300">
                       <Home className="w-3 h-3 mr-1" />
                       {t('homemade')}
                     </Badge>
                   ) : (
-                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-300">
                       <ShoppingCart className="w-3 h-3 mr-1" />
                       {t('purchased')}
                     </Badge>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">{t('rating')}</span>
+                <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl backdrop-blur-sm">
+                  <span className="text-sm font-semibold text-gray-600">{t('rating')}</span>
                   <div className="flex items-center gap-1">
                     {renderStars(entry.rating)}
-                    <span className="text-sm text-gray-600 ml-1">({entry.rating}/5)</span>
+                    <span className="text-sm text-gray-600 ml-2 font-medium">({entry.rating}/5)</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">{t('date')}</span>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl backdrop-blur-sm">
+                  <span className="text-sm font-semibold text-gray-600">{t('date')}</span>
+                  <div className="flex items-center gap-1 text-sm text-gray-600 font-medium">
                     <Calendar className="w-3 h-3" />
                     {formatDate(entry.date)}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-600 mb-2">{t('review')}</h4>
+              <div className="mt-6 p-4 bg-white/70 rounded-xl backdrop-blur-sm">
+                <h4 className="text-sm font-semibold text-gray-600 mb-3">{t('review')}</h4>
                 <p className="text-sm text-gray-700 leading-relaxed">{entry.review}</p>
               </div>
             </div>
 
-            <div className="mt-4">
-              <h4 className="text-sm font-medium text-gray-600 mb-2">{t('tags')}</h4>
+            <div className="mt-4 p-4 bg-white/70 rounded-xl backdrop-blur-sm">
+              <h4 className="text-sm font-semibold text-gray-600 mb-3">{t('tags')}</h4>
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
+                  <Badge key={tag} variant="outline" className="text-xs bg-orange-50/80 border-orange-200 text-orange-700">
                     {tag}
                   </Badge>
                 ))}

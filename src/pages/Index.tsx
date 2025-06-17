@@ -100,7 +100,7 @@ const mockFoodEntries: FoodEntry[] = [
 const STORAGE_KEY = "food-entries";
 
 const Index = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [foodEntries, setFoodEntries] = useState<FoodEntry[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -153,6 +153,64 @@ const Index = () => {
     });
   }, [foodEntries, filters]);
 
+  // Group entries by date
+  const groupedEntries = useMemo(() => {
+    const groups: { [key: string]: FoodEntry[] } = {};
+    filteredEntries.forEach(entry => {
+      if (!groups[entry.date]) {
+        groups[entry.date] = [];
+      }
+      groups[entry.date].push(entry);
+    });
+    
+    // Sort dates in descending order
+    const sortedDates = Object.keys(groups).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    
+    return sortedDates.map(date => ({
+      date,
+      entries: groups[date].sort((a, b) => b.rating - a.rating) // Sort by rating within each date
+    }));
+  }, [filteredEntries]);
+
+  const formatDateHeader = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const isToday = date.toDateString() === today.toDateString();
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+    
+    if (isToday) {
+      return t('today') || '오늘';
+    } else if (isYesterday) {
+      return t('yesterday') || '어제';
+    }
+    
+    if (language === 'ko') {
+      return date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short'
+      });
+    } else if (language === 'ja') {
+      return date.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short'
+      });
+    } else {
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short'
+      });
+    }
+  };
+
   const addFoodEntry = (newEntry: Omit<FoodEntry, 'id'>) => {
     const entry: FoodEntry = {
       ...newEntry,
@@ -196,86 +254,118 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex-shrink-0">
-              <LanguageSelector />
+        {/* Enhanced Header with glass morphism effect */}
+        <div className="text-center mb-12">
+          <div className="backdrop-blur-sm bg-white/30 rounded-3xl p-8 shadow-xl border border-white/20 mb-8">
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex-shrink-0">
+                <LanguageSelector />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent mb-3">
+                  {t('title')}
+                </h1>
+                <p className="text-xl text-gray-700 mb-8 font-medium">
+                  {t('subtitle')}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {isAdminMode ? (
+                  <Button 
+                    onClick={exitAdminMode}
+                    variant="outline"
+                    className="bg-red-50/80 backdrop-blur-sm border-red-200 text-red-700 hover:bg-red-100/80 shadow-lg"
+                  >
+                    {t('exitAdminMode')}
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => setIsPasswordDialogOpen(true)}
+                    variant="outline"
+                    className="bg-gray-50/80 backdrop-blur-sm border-gray-200 text-gray-700 hover:bg-gray-100/80 shadow-lg"
+                  >
+                    {t('adminMode')}
+                  </Button>
+                )}
+              </div>
             </div>
-            <div className="flex-1">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
-                {t('title')}
-              </h1>
-              <p className="text-lg text-gray-600 mb-6">
-                {t('subtitle')}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              {isAdminMode ? (
-                <Button 
-                  onClick={exitAdminMode}
-                  variant="outline"
-                  className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
-                >
-                  {t('exitAdminMode')}
-                </Button>
-              ) : (
-                <Button 
-                  onClick={() => setIsPasswordDialogOpen(true)}
-                  variant="outline"
-                  className="bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
-                >
-                  {t('adminMode')}
-                </Button>
-              )}
-            </div>
+            
+            <StatsSection entries={filteredEntries} />
+            
+            <Button 
+              onClick={() => setIsAddDialogOpen(true)}
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 rounded-full shadow-2xl transition-all duration-300 hover:shadow-3xl hover:scale-105 font-semibold text-lg"
+            >
+              <Plus className="w-6 h-6 mr-3" />
+              {t('addFoodEntry')}
+            </Button>
           </div>
-          
-          <StatsSection entries={filteredEntries} />
-          
-          <Button 
-            onClick={() => setIsAddDialogOpen(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            {t('addFoodEntry')}
-          </Button>
         </div>
 
-        {/* Filters */}
-        <FilterSection filters={filters} setFilters={setFilters} />
+        {/* Enhanced Filters */}
+        <div className="mb-8">
+          <FilterSection filters={filters} setFilters={setFilters} />
+        </div>
 
         {/* Admin Mode Indicator */}
         {isAdminMode && (
-          <div className="bg-orange-100 border border-orange-300 rounded-lg p-4 mb-6 text-center">
-            <p className="text-orange-800 font-medium">
+          <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-300 rounded-2xl p-6 mb-8 text-center shadow-lg backdrop-blur-sm">
+            <p className="text-orange-800 font-semibold text-lg">
               {t('adminModeActive')}
             </p>
           </div>
         )}
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {filteredEntries.map((entry) => (
-            <FoodCard 
-              key={entry.id} 
-              entry={entry} 
-              isAdminMode={isAdminMode}
-              onEdit={handleEditEntry}
-              onDelete={handleDeleteEntry}
-            />
+        {/* Date-grouped Gallery */}
+        <div className="space-y-12">
+          {groupedEntries.map(({ date, entries }) => (
+            <div key={date} className="space-y-6">
+              {/* Date Header */}
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0">
+                  <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-full p-3 shadow-lg">
+                    <Calendar className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-1">
+                    {formatDateHeader(date)}
+                  </h2>
+                  <div className="h-px bg-gradient-to-r from-orange-200 via-amber-200 to-transparent"></div>
+                </div>
+                <Badge variant="outline" className="bg-white/50 backdrop-blur-sm border-orange-200 text-orange-700 font-medium">
+                  {entries.length}개의 기록
+                </Badge>
+              </div>
+
+              {/* Entries Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pl-4">
+                {entries.map((entry) => (
+                  <div key={entry.id} className="transform transition-all duration-300 hover:scale-105">
+                    <FoodCard 
+                      entry={entry} 
+                      isAdminMode={isAdminMode}
+                      onEdit={handleEditEntry}
+                      onDelete={handleDeleteEntry}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
         {filteredEntries.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Calendar className="w-16 h-16 mx-auto mb-4" />
+          <div className="text-center py-20">
+            <div className="backdrop-blur-sm bg-white/30 rounded-3xl p-12 shadow-xl border border-white/20 max-w-md mx-auto">
+              <div className="text-gray-400 mb-6">
+                <Calendar className="w-20 h-20 mx-auto mb-6 opacity-50" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-600 mb-4">{t('noEntriesTitle')}</h3>
+              <p className="text-gray-500 text-lg leading-relaxed">{t('noEntriesDescription')}</p>
             </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('noEntriesTitle')}</h3>
-            <p className="text-gray-500">{t('noEntriesDescription')}</p>
           </div>
         )}
       </div>
