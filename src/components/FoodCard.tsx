@@ -2,18 +2,22 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Home, ShoppingCart, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Star, Home, ShoppingCart, Calendar, Edit, Trash2 } from "lucide-react";
 import { FoodEntry } from "@/pages/Index";
 
 interface FoodCardProps {
   entry: FoodEntry;
+  isAdminMode?: boolean;
+  onEdit?: (entry: FoodEntry) => void;
+  onDelete?: (entry: FoodEntry) => void;
 }
 
-export const FoodCard = ({ entry }: FoodCardProps) => {
+export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('ko-KR', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -31,13 +35,21 @@ export const FoodCard = ({ entry }: FoodCardProps) => {
     ));
   };
 
+  const handleCardClick = () => {
+    if (!isAdminMode) {
+      setIsFlipped(!isFlipped);
+    }
+  };
+
   return (
     <div className="perspective-1000 h-80">
       <div
-        className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
+        className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
+          !isAdminMode ? 'cursor-pointer' : ''
+        } ${
           isFlipped ? 'rotate-y-180' : ''
         }`}
-        onClick={() => setIsFlipped(!isFlipped)}
+        onClick={handleCardClick}
       >
         {/* Front of card */}
         <Card className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -48,18 +60,47 @@ export const FoodCard = ({ entry }: FoodCardProps) => {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            
+            {/* Admin buttons */}
+            {isAdminMode && (
+              <div className="absolute top-2 right-2 flex gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit?.(entry);
+                  }}
+                  className="bg-white/90 hover:bg-white"
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete?.(entry);
+                  }}
+                  className="bg-red-500/90 hover:bg-red-600"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+            
             <div className="absolute bottom-4 left-4 right-4">
               <h3 className="text-white text-xl font-semibold mb-2">{entry.name}</h3>
               <div className="flex items-center gap-2">
                 {entry.isHomemade ? (
                   <Badge className="bg-green-500 hover:bg-green-600">
                     <Home className="w-3 h-3 mr-1" />
-                    Homemade
+                    홈메이드
                   </Badge>
                 ) : (
                   <Badge className="bg-blue-500 hover:bg-blue-600">
                     <ShoppingCart className="w-3 h-3 mr-1" />
-                    Purchased
+                    구매
                   </Badge>
                 )}
                 <div className="flex items-center">
@@ -78,22 +119,22 @@ export const FoodCard = ({ entry }: FoodCardProps) => {
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">Type:</span>
+                  <span className="text-sm font-medium text-gray-600">종류:</span>
                   {entry.isHomemade ? (
                     <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                       <Home className="w-3 h-3 mr-1" />
-                      Homemade
+                      홈메이드
                     </Badge>
                   ) : (
                     <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
                       <ShoppingCart className="w-3 h-3 mr-1" />
-                      Purchased
+                      구매
                     </Badge>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">Rating:</span>
+                  <span className="text-sm font-medium text-gray-600">평점:</span>
                   <div className="flex items-center gap-1">
                     {renderStars(entry.rating)}
                     <span className="text-sm text-gray-600 ml-1">({entry.rating}/5)</span>
@@ -101,7 +142,7 @@ export const FoodCard = ({ entry }: FoodCardProps) => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">Date:</span>
+                  <span className="text-sm font-medium text-gray-600">날짜:</span>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <Calendar className="w-3 h-3" />
                     {formatDate(entry.date)}
@@ -110,13 +151,13 @@ export const FoodCard = ({ entry }: FoodCardProps) => {
               </div>
 
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-600 mb-2">Review:</h4>
+                <h4 className="text-sm font-medium text-gray-600 mb-2">리뷰:</h4>
                 <p className="text-sm text-gray-700 leading-relaxed">{entry.review}</p>
               </div>
             </div>
 
             <div className="mt-4">
-              <h4 className="text-sm font-medium text-gray-600 mb-2">Tags:</h4>
+              <h4 className="text-sm font-medium text-gray-600 mb-2">태그:</h4>
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map((tag) => (
                   <Badge key={tag} variant="outline" className="text-xs">

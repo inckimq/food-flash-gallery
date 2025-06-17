@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,19 @@ import { AddFoodDialog } from "@/components/AddFoodDialog";
 import { FilterSection } from "@/components/FilterSection";
 import { FoodCard } from "@/components/FoodCard";
 import { StatsSection } from "@/components/StatsSection";
+import { PasswordDialog } from "@/components/PasswordDialog";
+import { EditFoodDialog } from "@/components/EditFoodDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export interface FoodEntry {
   id: string;
@@ -88,6 +100,10 @@ const STORAGE_KEY = "food-entries";
 const Index = () => {
   const [foodEntries, setFoodEntries] = useState<FoodEntry[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<FoodEntry | null>(null);
+  const [deletingEntry, setDeletingEntry] = useState<FoodEntry | null>(null);
   const [filters, setFilters] = useState({
     rating: 0,
     tags: [] as string[],
@@ -95,6 +111,7 @@ const Index = () => {
     dateTo: "",
     isHomemade: null as boolean | null
   });
+  const { toast } = useToast();
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -141,17 +158,75 @@ const Index = () => {
     setFoodEntries(prev => [entry, ...prev]);
   };
 
+  const handleEditEntry = (entry: FoodEntry) => {
+    setEditingEntry(entry);
+  };
+
+  const handleSaveEdit = (updatedEntry: FoodEntry) => {
+    setFoodEntries(prev => 
+      prev.map(entry => entry.id === updatedEntry.id ? updatedEntry : entry)
+    );
+    setEditingEntry(null);
+  };
+
+  const handleDeleteEntry = (entry: FoodEntry) => {
+    setDeletingEntry(entry);
+  };
+
+  const confirmDelete = () => {
+    if (deletingEntry) {
+      setFoodEntries(prev => prev.filter(entry => entry.id !== deletingEntry.id));
+      setDeletingEntry(null);
+      toast({
+        title: "삭제 완료",
+        description: "음식 정보가 성공적으로 삭제되었습니다.",
+      });
+    }
+  };
+
+  const handlePasswordSuccess = () => {
+    setIsAdminMode(true);
+  };
+
+  const exitAdminMode = () => {
+    setIsAdminMode(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
-            My Food Journey
-          </h1>
-          <p className="text-lg text-gray-600 mb-6">
-            A delicious collection of today's culinary adventures
-          </p>
+          <div className="flex justify-between items-start mb-4">
+            <div></div>
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+                My Food Journey
+              </h1>
+              <p className="text-lg text-gray-600 mb-6">
+                A delicious collection of today's culinary adventures
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {isAdminMode ? (
+                <Button 
+                  onClick={exitAdminMode}
+                  variant="outline"
+                  className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                >
+                  관리 모드 종료
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => setIsPasswordDialogOpen(true)}
+                  variant="outline"
+                  className="bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                >
+                  관리 모드
+                </Button>
+              )}
+            </div>
+          </div>
           
           <StatsSection entries={filteredEntries} />
           
@@ -167,10 +242,25 @@ const Index = () => {
         {/* Filters */}
         <FilterSection filters={filters} setFilters={setFilters} />
 
+        {/* Admin Mode Indicator */}
+        {isAdminMode && (
+          <div className="bg-orange-100 border border-orange-300 rounded-lg p-4 mb-6 text-center">
+            <p className="text-orange-800 font-medium">
+              🔧 관리 모드가 활성화되었습니다. 카드를 클릭하여 수정/삭제할 수 있습니다.
+            </p>
+          </div>
+        )}
+
         {/* Gallery Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {filteredEntries.map((entry) => (
-            <FoodCard key={entry.id} entry={entry} />
+            <FoodCard 
+              key={entry.id} 
+              entry={entry} 
+              isAdminMode={isAdminMode}
+              onEdit={handleEditEntry}
+              onDelete={handleDeleteEntry}
+            />
           ))}
         </div>
 
@@ -190,6 +280,36 @@ const Index = () => {
         onClose={() => setIsAddDialogOpen(false)}
         onAdd={addFoodEntry}
       />
+
+      <PasswordDialog
+        isOpen={isPasswordDialogOpen}
+        onClose={() => setIsPasswordDialogOpen(false)}
+        onSuccess={handlePasswordSuccess}
+      />
+
+      <EditFoodDialog
+        isOpen={!!editingEntry}
+        onClose={() => setEditingEntry(null)}
+        onSave={handleSaveEdit}
+        entry={editingEntry}
+      />
+
+      <AlertDialog open={!!deletingEntry} onOpenChange={() => setDeletingEntry(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{deletingEntry?.name}"을(를) 삭제하면 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
