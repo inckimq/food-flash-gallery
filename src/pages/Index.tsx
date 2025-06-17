@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,8 +83,10 @@ const mockFoodEntries: FoodEntry[] = [
   }
 ];
 
+const STORAGE_KEY = "food-entries";
+
 const Index = () => {
-  const [foodEntries, setFoodEntries] = useState<FoodEntry[]>(mockFoodEntries);
+  const [foodEntries, setFoodEntries] = useState<FoodEntry[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [filters, setFilters] = useState({
     rating: 0,
@@ -93,6 +95,32 @@ const Index = () => {
     dateTo: "",
     isHomemade: null as boolean | null
   });
+
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedEntries = localStorage.getItem(STORAGE_KEY);
+      if (savedEntries) {
+        setFoodEntries(JSON.parse(savedEntries));
+      } else {
+        // If no saved data, use mock data for first time
+        setFoodEntries(mockFoodEntries);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mockFoodEntries));
+      }
+    } catch (error) {
+      console.error("Failed to load food entries from localStorage:", error);
+      setFoodEntries(mockFoodEntries);
+    }
+  }, []);
+
+  // Save data to localStorage whenever foodEntries changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(foodEntries));
+    } catch (error) {
+      console.error("Failed to save food entries to localStorage:", error);
+    }
+  }, [foodEntries]);
 
   const filteredEntries = useMemo(() => {
     return foodEntries.filter(entry => {
