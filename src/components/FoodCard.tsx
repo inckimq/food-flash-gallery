@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, Home, ShoppingCart, Calendar, Edit, Trash2 } from "lucide-react";
 import { FoodEntry } from "@/pages/Index";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FoodCardProps {
   entry: FoodEntry;
@@ -15,13 +15,29 @@ interface FoodCardProps {
 
 export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const { t, language } = useLanguage();
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ko-KR', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const date = new Date(dateString);
+    if (language === 'ko') {
+      return date.toLocaleDateString('ko-KR', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } else if (language === 'ja') {
+      return date.toLocaleDateString('ja-JP', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -95,12 +111,12 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
                 {entry.isHomemade ? (
                   <Badge className="bg-green-500 hover:bg-green-600">
                     <Home className="w-3 h-3 mr-1" />
-                    홈메이드
+                    {t('homemade')}
                   </Badge>
                 ) : (
                   <Badge className="bg-blue-500 hover:bg-blue-600">
                     <ShoppingCart className="w-3 h-3 mr-1" />
-                    구매
+                    {t('purchased')}
                   </Badge>
                 )}
                 <div className="flex items-center">
@@ -119,22 +135,22 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">종류:</span>
+                  <span className="text-sm font-medium text-gray-600">{t('type')}</span>
                   {entry.isHomemade ? (
                     <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                       <Home className="w-3 h-3 mr-1" />
-                      홈메이드
+                      {t('homemade')}
                     </Badge>
                   ) : (
                     <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
                       <ShoppingCart className="w-3 h-3 mr-1" />
-                      구매
+                      {t('purchased')}
                     </Badge>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">평점:</span>
+                  <span className="text-sm font-medium text-gray-600">{t('rating')}</span>
                   <div className="flex items-center gap-1">
                     {renderStars(entry.rating)}
                     <span className="text-sm text-gray-600 ml-1">({entry.rating}/5)</span>
@@ -142,7 +158,7 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">날짜:</span>
+                  <span className="text-sm font-medium text-gray-600">{t('date')}</span>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <Calendar className="w-3 h-3" />
                     {formatDate(entry.date)}
@@ -151,13 +167,13 @@ export const FoodCard = ({ entry, isAdminMode = false, onEdit, onDelete }: FoodC
               </div>
 
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-600 mb-2">리뷰:</h4>
+                <h4 className="text-sm font-medium text-gray-600 mb-2">{t('review')}</h4>
                 <p className="text-sm text-gray-700 leading-relaxed">{entry.review}</p>
               </div>
             </div>
 
             <div className="mt-4">
-              <h4 className="text-sm font-medium text-gray-600 mb-2">태그:</h4>
+              <h4 className="text-sm font-medium text-gray-600 mb-2">{t('tags')}</h4>
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map((tag) => (
                   <Badge key={tag} variant="outline" className="text-xs">

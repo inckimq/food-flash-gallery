@@ -9,6 +9,8 @@ import { FoodCard } from "@/components/FoodCard";
 import { StatsSection } from "@/components/StatsSection";
 import { PasswordDialog } from "@/components/PasswordDialog";
 import { EditFoodDialog } from "@/components/EditFoodDialog";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -98,6 +100,7 @@ const mockFoodEntries: FoodEntry[] = [
 const STORAGE_KEY = "food-entries";
 
 const Index = () => {
+  const { t } = useLanguage();
   const [foodEntries, setFoodEntries] = useState<FoodEntry[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -198,13 +201,15 @@ const Index = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-between items-start mb-4">
-            <div></div>
+            <div className="flex-shrink-0">
+              <LanguageSelector />
+            </div>
             <div className="flex-1">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
-                My Food Journey
+                {t('title')}
               </h1>
               <p className="text-lg text-gray-600 mb-6">
-                A delicious collection of today's culinary adventures
+                {t('subtitle')}
               </p>
             </div>
             <div className="flex gap-2">
@@ -214,7 +219,7 @@ const Index = () => {
                   variant="outline"
                   className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
                 >
-                  관리 모드 종료
+                  {t('exitAdminMode')}
                 </Button>
               ) : (
                 <Button 
@@ -222,7 +227,7 @@ const Index = () => {
                   variant="outline"
                   className="bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
                 >
-                  관리 모드
+                  {t('adminMode')}
                 </Button>
               )}
             </div>
@@ -235,7 +240,7 @@ const Index = () => {
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
           >
             <Plus className="w-5 h-5 mr-2" />
-            Add Food Entry
+            {t('addFoodEntry')}
           </Button>
         </div>
 
@@ -246,7 +251,7 @@ const Index = () => {
         {isAdminMode && (
           <div className="bg-orange-100 border border-orange-300 rounded-lg p-4 mb-6 text-center">
             <p className="text-orange-800 font-medium">
-              🔧 관리 모드가 활성화되었습니다. 카드를 클릭하여 수정/삭제할 수 있습니다.
+              {t('adminModeActive')}
             </p>
           </div>
         )}
@@ -269,8 +274,8 @@ const Index = () => {
             <div className="text-gray-400 mb-4">
               <Calendar className="w-16 h-16 mx-auto mb-4" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No food entries found</h3>
-            <p className="text-gray-500">Try adjusting your filters or add a new food entry!</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('noEntriesTitle')}</h3>
+            <p className="text-gray-500">{t('noEntriesDescription')}</p>
           </div>
         )}
       </div>
@@ -297,15 +302,15 @@ const Index = () => {
       <AlertDialog open={!!deletingEntry} onOpenChange={() => setDeletingEntry(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>{t('confirmDelete')}</AlertDialogTitle>
             <AlertDialogDescription>
-              "{deletingEntry?.name}"을(를) 삭제하면 복구할 수 없습니다.
+              "{deletingEntry?.name}"{t('deleteWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              삭제
+              {t('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

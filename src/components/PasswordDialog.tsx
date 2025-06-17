@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PasswordDialogProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface PasswordDialogProps {
 export const PasswordDialog = ({ isOpen, onClose, onSuccess }: PasswordDialogProps) => {
   const [password, setPassword] = useState("");
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,13 +24,13 @@ export const PasswordDialog = ({ isOpen, onClose, onSuccess }: PasswordDialogPro
       onClose();
       setPassword("");
       toast({
-        title: "인증 성공",
-        description: "관리 모드가 활성화되었습니다.",
+        title: t('authSuccess'),
+        description: t('authSuccessDesc'),
       });
     } else {
       toast({
-        title: "인증 실패",
-        description: "비밀번호가 올바르지 않습니다.",
+        title: t('authFailed'),
+        description: t('authFailedDesc'),
         variant: "destructive",
       });
       setPassword("");
@@ -39,27 +41,27 @@ export const PasswordDialog = ({ isOpen, onClose, onSuccess }: PasswordDialogPro
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>관리자 인증</DialogTitle>
+          <DialogTitle>{t('adminAuth')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="password" className="block text-sm font-medium mb-2">
-              비밀번호를 입력하세요
+              {t('enterPassword')}
             </label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호"
+              placeholder={t('password')}
               autoFocus
             />
           </div>
           <div className="flex gap-3 justify-end">
             <Button type="button" variant="outline" onClick={onClose}>
-              취소
+              {t('cancel')}
             </Button>
-            <Button type="submit">인증</Button>
+            <Button type="submit">{t('authenticate')}</Button>
           </div>
         </form>
       </DialogContent>
