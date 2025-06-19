@@ -255,38 +255,53 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Enhanced Header with glass morphism effect */}
-        <div className="text-center mb-12">
-          <div className="backdrop-blur-sm bg-white/30 rounded-3xl p-8 shadow-xl border border-white/20 mb-8">
-            <div className="flex justify-between items-start mb-6">
-              <div className="flex-shrink-0">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        {/* Enhanced Header with better mobile responsiveness */}
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="backdrop-blur-sm bg-white/30 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-xl border border-white/20 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-4 sm:mb-6">
+              <div className="order-2 sm:order-1 flex-shrink-0">
                 <LanguageSelector />
               </div>
-              <div className="flex-1">
-                <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent mb-3">
-                  {t('title')}
-                </h1>
-                <p className="text-xl text-gray-700 mb-8 font-medium">
-                  {t('subtitle')}
+              
+              <div className="order-1 sm:order-2 flex-1 px-2 sm:px-4">
+                <div className="relative mb-4 sm:mb-6">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent mb-2 sm:mb-3 leading-tight">
+                    푸드 스토리
+                  </h1>
+                  <div className="absolute -top-1 -left-1 text-2xl sm:text-3xl md:text-4xl lg:text-5xl opacity-20">
+                    ✨
+                  </div>
+                  <div className="absolute -top-2 -right-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl opacity-20">
+                    🍽️
+                  </div>
+                </div>
+                <p className="text-sm sm:text-lg md:text-xl text-gray-700 mb-4 sm:mb-8 font-medium leading-relaxed px-2">
+                  매일의 맛있는 순간을 기록하고<br className="sm:hidden" />
+                  <span className="hidden sm:inline"> </span>특별한 추억으로 만들어가세요
                 </p>
               </div>
-              <div className="flex gap-2">
+              
+              <div className="order-3 flex gap-2 flex-shrink-0">
                 {isAdminMode ? (
                   <Button 
                     onClick={exitAdminMode}
                     variant="outline"
-                    className="bg-red-50/80 backdrop-blur-sm border-red-200 text-red-700 hover:bg-red-100/80 shadow-lg"
+                    size="sm"
+                    className="bg-red-50/80 backdrop-blur-sm border-red-200 text-red-700 hover:bg-red-100/80 shadow-lg text-xs sm:text-sm px-2 sm:px-4"
                   >
-                    {t('exitAdminMode')}
+                    <span className="hidden sm:inline">{t('exitAdminMode')}</span>
+                    <span className="sm:hidden">종료</span>
                   </Button>
                 ) : (
                   <Button 
                     onClick={() => setIsPasswordDialogOpen(true)}
                     variant="outline"
-                    className="bg-gray-50/80 backdrop-blur-sm border-gray-200 text-gray-700 hover:bg-gray-100/80 shadow-lg"
+                    size="sm"
+                    className="bg-gray-50/80 backdrop-blur-sm border-gray-200 text-gray-700 hover:bg-gray-100/80 shadow-lg text-xs sm:text-sm px-2 sm:px-4"
                   >
-                    {t('adminMode')}
+                    <span className="hidden sm:inline">{t('adminMode')}</span>
+                    <span className="sm:hidden">관리</span>
                   </Button>
                 )}
               </div>
@@ -296,52 +311,54 @@ const Index = () => {
             
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 rounded-full shadow-2xl transition-all duration-300 hover:shadow-3xl hover:scale-105 font-semibold text-lg"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl transition-all duration-300 hover:shadow-3xl hover:scale-105 font-semibold text-sm sm:text-lg"
             >
-              <Plus className="w-6 h-6 mr-3" />
-              {t('addFoodEntry')}
+              <Plus className="w-4 h-4 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+              <span className="hidden sm:inline">{t('addFoodEntry')}</span>
+              <span className="sm:hidden">기록 추가</span>
             </Button>
           </div>
         </div>
 
-        {/* Enhanced Filters */}
-        <div className="mb-8">
+        {/* Enhanced Filters with better mobile layout */}
+        <div className="mb-6 sm:mb-8">
           <FilterSection filters={filters} setFilters={setFilters} />
         </div>
 
         {/* Admin Mode Indicator */}
         {isAdminMode && (
-          <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-300 rounded-2xl p-6 mb-8 text-center shadow-lg backdrop-blur-sm">
-            <p className="text-orange-800 font-semibold text-lg">
+          <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 text-center shadow-lg backdrop-blur-sm">
+            <p className="text-orange-800 font-semibold text-sm sm:text-lg">
               {t('adminModeActive')}
             </p>
           </div>
         )}
 
-        {/* Date-grouped Gallery */}
-        <div className="space-y-12">
+        {/* Date-grouped Gallery with improved mobile responsiveness */}
+        <div className="space-y-8 sm:space-y-12">
           {groupedEntries.map(({ date, entries }) => (
-            <div key={date} className="space-y-6">
-              {/* Date Header */}
-              <div className="flex items-center gap-4">
+            <div key={date} className="space-y-4 sm:space-y-6">
+              {/* Date Header with better mobile design */}
+              <div className="flex items-center gap-3 sm:gap-4">
                 <div className="flex-shrink-0">
-                  <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-full p-3 shadow-lg">
-                    <Calendar className="w-6 h-6 text-white" />
+                  <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-full p-2 sm:p-3 shadow-lg">
+                    <Calendar className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                   </div>
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-1">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-800 mb-1 truncate">
                     {formatDateHeader(date)}
                   </h2>
                   <div className="h-px bg-gradient-to-r from-orange-200 via-amber-200 to-transparent"></div>
                 </div>
-                <Badge variant="outline" className="bg-white/50 backdrop-blur-sm border-orange-200 text-orange-700 font-medium">
-                  {entries.length}개의 기록
+                <Badge variant="outline" className="bg-white/50 backdrop-blur-sm border-orange-200 text-orange-700 font-medium text-xs sm:text-sm flex-shrink-0">
+                  <span className="hidden sm:inline">{entries.length}개의 기록</span>
+                  <span className="sm:hidden">{entries.length}</span>
                 </Badge>
               </div>
 
-              {/* Entries Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pl-4">
+              {/* Entries Grid with improved mobile layout */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pl-2 sm:pl-4">
                 {entries.map((entry) => (
                   <div key={entry.id} className="transform transition-all duration-300 hover:scale-105">
                     <FoodCard 
@@ -358,13 +375,13 @@ const Index = () => {
         </div>
 
         {filteredEntries.length === 0 && (
-          <div className="text-center py-20">
-            <div className="backdrop-blur-sm bg-white/30 rounded-3xl p-12 shadow-xl border border-white/20 max-w-md mx-auto">
-              <div className="text-gray-400 mb-6">
-                <Calendar className="w-20 h-20 mx-auto mb-6 opacity-50" />
+          <div className="text-center py-12 sm:py-20">
+            <div className="backdrop-blur-sm bg-white/30 rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-xl border border-white/20 max-w-md mx-auto">
+              <div className="text-gray-400 mb-4 sm:mb-6">
+                <Calendar className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 opacity-50" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-600 mb-4">{t('noEntriesTitle')}</h3>
-              <p className="text-gray-500 text-lg leading-relaxed">{t('noEntriesDescription')}</p>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-600 mb-3 sm:mb-4">{t('noEntriesTitle')}</h3>
+              <p className="text-gray-500 text-base sm:text-lg leading-relaxed">{t('noEntriesDescription')}</p>
             </div>
           </div>
         )}
